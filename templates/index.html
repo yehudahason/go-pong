@@ -1,109 +1,218 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0b1020">
-  <meta name="description" content="A modern browser Pong game served by Go's html/template.">
-  <title>{{.Title}}</title>
-  <link rel="stylesheet" href="/static/style.css">
-  <script src="/static/game.js" defer></script>
-</head>
-<body>
-  <main class="app-shell" data-win-score="{{.WinningScore}}">
-    <header class="topbar">
-      <a class="brand" href="/" aria-label="Go Pong home">
-        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
-        <span>go<span class="brand-dot">.</span>pong</span>
-      </a>
-      <span class="topbar-tag"><span class="live-dot"></span> THE ORIGINAL, REIMAGINED</span>
-      <div class="version">BUILT WITH <span>GO + HTML/TEMPLATE</span></div>
-    </header>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b1020" />
+    <meta
+      name="description"
+      content="A modern browser Pong game served by Go's html/template."
+    />
+    <title>{{.Title}}</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <script src="/static/game.js" defer></script>
+  </head>
+  <body>
+    <main class="app-shell" data-win-score="{{.WinningScore}}">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Go Pong home">
+          <span class="brand-mark" aria-hidden="true"
+            ><span></span><span></span><span></span
+          ></span>
+          <span>go<span class="brand-dot">.</span>pong</span>
+        </a>
+        <span class="topbar-tag"
+          ><span class="live-dot"></span> THE ORIGINAL, REIMAGINED</span
+        >
+        <div class="version">BUILT WITH <span>GO + HTML/TEMPLATE</span></div>
+      </header>
 
-    <section class="hero" aria-labelledby="heading">
-      <div class="eyebrow"><span class="eyebrow-line"></span> CLASSIC ARCADE / 001</div>
-      <h1 id="heading">READY TO <em>RALLY?</em></h1>
-      <p>The simplest game. The greatest rivalry. First to <strong>{{.WinningScore}}</strong> wins.</p>
-    </section>
+      <section class="hero" aria-labelledby="heading">
+        <div class="eyebrow">
+          <span class="eyebrow-line"></span> CLASSIC ARCADE / 001
+        </div>
+        <h1 id="heading">READY TO <em>RALLY?</em></h1>
+        <p>
+          The simplest game. The greatest rivalry. First to
+          <strong>{{.WinningScore}}</strong> wins.
+        </p>
+      </section>
 
-    <section class="game-card" aria-label="Pong game">
-      <div class="game-toolbar">
-        <div class="game-status" role="status" aria-live="polite">
-          <span class="status-dot" id="statusDot"></span>
-          <span id="statusLabel">READY TO PLAY</span>
-        </div>
-        <div class="settings">
-          <label class="visually-hidden" for="mode">Game mode</label>
-          <select id="mode" aria-label="Game mode">
-            <option value="cpu">1 PLAYER · VS CPU</option>
-            <option value="local">2 PLAYERS · LOCAL</option>
-          </select>
-          <label class="visually-hidden" for="difficulty">Computer difficulty</label>
-          <select id="difficulty" aria-label="Computer difficulty">
-            {{range .Difficulties}}
-            <option value="{{.Value}}" {{if eq .Value $.DefaultDifficulty}}selected{{end}}>{{.Label}}</option>
-            {{end}}
-          </select>
-        </div>
-      </div>
-
-      <div class="scoreboard">
-        <div class="competitor">
-          <span class="player-kicker"><span class="player-id cyan"></span> PLAYER 01</span>
-          <span id="playerLabel" class="player-name">YOU</span>
-        </div>
-        <div class="scores" aria-live="polite" aria-atomic="true">
-          <span id="leftScore">0</span><span class="score-divider">:</span><span id="rightScore">0</span>
-        </div>
-        <div class="competitor competitor-right">
-          <span class="player-kicker">PLAYER 02 <span class="player-id pink"></span></span>
-          <span id="opponentLabel" class="player-name">CPU</span>
-        </div>
-      </div>
-
-      <div class="arena" id="arena">
-        <canvas id="pong" width="960" height="540" aria-label="Pong arena. Use W and S or arrow keys to move your paddle; in two-player mode the second player uses arrow keys.">
-          Your browser does not support canvas. Please use a modern browser to play Pong.
-        </canvas>
-        <div class="arena-overlay" id="overlay">
-          <div class="overlay-content">
-            <div class="overlay-symbol" aria-hidden="true">✦</div>
-            <div class="overlay-eyebrow" id="overlayEyebrow">THE COURT IS YOURS</div>
-            <h2 id="overlayTitle">GAME ON.</h2>
-            <p id="overlayText">Test your reflexes. Own the rally.</p>
-            <button class="primary-button" id="startButton" type="button">START GAME <span aria-hidden="true">↗</span></button>
-            <div class="overlay-hint">PRESS SPACE TO START</div>
+      <section class="game-card" aria-label="Pong game">
+        <div class="game-toolbar">
+          <div class="game-status" role="status" aria-live="polite">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusLabel">READY TO PLAY</span>
+          </div>
+          <div class="settings">
+            <label class="visually-hidden" for="mode">Game mode</label>
+            <select id="mode" aria-label="Game mode">
+              <option value="cpu">1 PLAYER · VS CPU</option>
+              <option value="local">2 PLAYERS · LOCAL</option>
+            </select>
+            <label class="visually-hidden" for="difficulty"
+              >Computer difficulty</label
+            >
+            <select id="difficulty" aria-label="Computer difficulty">
+              {{range .Difficulties}}
+              <option
+                value="{{.Value}}"
+                {{if
+                eq
+                .Value
+                $.DefaultDifficulty}}selected{{end}}
+              >
+                {{.Label}}
+              </option>
+              {{end}}
+            </select>
           </div>
         </div>
-      </div>
 
-      <div class="game-footer">
-        <div class="match-stats">
-          <div><span class="stat-label">CURRENT RALLY</span> <strong id="rallyCount">00</strong></div>
-          <span class="stat-separator"></span>
-          <div><span class="stat-label">BEST RALLY</span> <strong id="bestRally">00</strong></div>
+        <div class="scoreboard">
+          <div class="competitor">
+            <span class="player-kicker"
+              ><span class="player-id cyan"></span> PLAYER 01</span
+            >
+            <span id="playerLabel" class="player-name">YOU</span>
+          </div>
+          <div class="scores" aria-live="polite" aria-atomic="true">
+            <span id="leftScore">0</span><span class="score-divider">:</span
+            ><span id="rightScore">0</span>
+          </div>
+          <div class="competitor competitor-right">
+            <span class="player-kicker"
+              >PLAYER 02 <span class="player-id pink"></span
+            ></span>
+            <span id="opponentLabel" class="player-name">CPU</span>
+          </div>
         </div>
-        <div class="game-actions">
-          <button class="icon-button" type="button" id="soundButton" aria-label="Enable sound" aria-pressed="false" title="Toggle sound">♪ <span id="soundLabel">OFF</span></button>
-          <button class="secondary-button" type="button" id="resetButton">↺ <span>RESTART</span></button>
-          <button class="secondary-button" type="button" id="pauseButton" disabled>Ⅱ <span id="pauseLabel">PAUSE</span></button>
-        </div>
-      </div>
-    </section>
 
-    <footer class="below-game">
-      <div class="controls-card">
-        <div class="controls-heading"><span class="controls-icon">⌨</span><div><span class="card-eyebrow">HOW TO PLAY</span><h2>Master the controls</h2></div></div>
-        <div class="controls-layout">
-          <div class="control-set"><span class="control-description">PLAYER 01 <span class="muted">/ LEFT</span></span><div class="key-row"><kbd>W</kbd><kbd>S</kbd><span class="additional-keys" id="onePlayerKeys"><span>or</span><kbd>↑</kbd><kbd>↓</kbd></span><small id="leftHelp">MOVE PADDLE</small></div></div>
-          <div class="control-set" id="player2Controls" hidden><span class="control-description">PLAYER 02 <span class="muted">/ RIGHT</span></span><div class="key-row"><kbd>↑</kbd><kbd>↓</kbd><small>MOVE PADDLE</small></div></div>
-          <div class="control-set"><span class="control-description">GAME ACTIONS</span><div class="key-row"><kbd class="space-key">SPACE</kbd><small>START / PAUSE</small></div></div>
+        <div class="arena" id="arena">
+          <canvas
+            id="pong"
+            width="960"
+            height="540"
+            aria-label="Pong arena. Use W and S or arrow keys to move your paddle; in two-player mode the second player uses arrow keys."
+          >
+            Your browser does not support canvas. Please use a modern browser to
+            play Pong.
+          </canvas>
+          <div class="arena-overlay" id="overlay">
+            <div class="overlay-content">
+              <div class="overlay-symbol" aria-hidden="true">✦</div>
+              <div class="overlay-eyebrow" id="overlayEyebrow">
+                THE COURT IS YOURS
+              </div>
+              <h2 id="overlayTitle">GAME ON.</h2>
+              <p id="overlayText">Test your reflexes. Own the rally.</p>
+              <button class="primary-button" id="startButton" type="button">
+                START GAME <span aria-hidden="true">↗</span>
+              </button>
+              <div class="overlay-hint">PRESS SPACE TO START</div>
+            </div>
+          </div>
         </div>
-        <p class="touch-hint" id="touchHelp">On touch devices, drag your finger in the court to move your paddle.</p>
+
+        <div class="game-footer">
+          <div class="match-stats">
+            <div>
+              <span class="stat-label">CURRENT RALLY</span>
+              <strong id="rallyCount">00</strong>
+            </div>
+            <span class="stat-separator"></span>
+            <div>
+              <span class="stat-label">BEST RALLY</span>
+              <strong id="bestRally">00</strong>
+            </div>
+          </div>
+          <div class="game-actions">
+            <button
+              class="icon-button"
+              type="button"
+              id="soundButton"
+              aria-label="Enable sound"
+              aria-pressed="false"
+              title="Toggle sound"
+            >
+              ♪ <span id="soundLabel">OFF</span>
+            </button>
+            <button class="secondary-button" type="button" id="resetButton">
+              ↺ <span>RESTART</span>
+            </button>
+            <button
+              class="secondary-button"
+              type="button"
+              id="pauseButton"
+              disabled
+            >
+              Ⅱ <span id="pauseLabel">PAUSE</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <footer class="below-game">
+        <div class="controls-card">
+          <div class="controls-heading">
+            <span class="controls-icon">⌨</span>
+            <div>
+              <span class="card-eyebrow">HOW TO PLAY</span>
+              <h2>Master the controls</h2>
+            </div>
+          </div>
+          <div class="controls-layout">
+            <div class="control-set">
+              <span class="control-description"
+                >PLAYER 01 <span class="muted">/ LEFT</span></span
+              >
+              <div class="key-row">
+                <kbd>W</kbd><kbd>S</kbd
+                ><span class="additional-keys" id="onePlayerKeys"
+                  ><span>or</span><kbd>↑</kbd><kbd>↓</kbd></span
+                ><small id="leftHelp">MOVE PADDLE</small>
+              </div>
+            </div>
+            <div class="control-set" id="player2Controls" hidden>
+              <span class="control-description"
+                >PLAYER 02 <span class="muted">/ RIGHT</span></span
+              >
+              <div class="key-row">
+                <kbd>↑</kbd><kbd>↓</kbd><small>MOVE PADDLE</small>
+              </div>
+            </div>
+            <div class="control-set">
+              <span class="control-description">GAME ACTIONS</span>
+              <div class="key-row">
+                <kbd class="space-key">SPACE</kbd><small>START / PAUSE</small>
+              </div>
+            </div>
+          </div>
+          <p class="touch-hint" id="touchHelp">
+            On touch devices, drag your finger in the court to move your paddle.
+          </p>
+        </div>
+        <div class="side-note">
+          <span class="small-spark">✳</span>
+          <p>Easy to learn.<br /><strong>Impossible to master.</strong></p>
+          <span class="side-note-index">01—07</span>
+        </div>
+      </footer>
+      <div class="bottom-line">
+        <span>HANDCRAFTED WITH GO &amp; A LITTLE JAVASCRIPT</span
+        ><span>INSERT COIN? NAH. JUST PLAY.</span>
       </div>
-      <div class="side-note"><span class="small-spark">✳</span><p>Easy to learn.<br><strong>Impossible to master.</strong></p><span class="side-note-index">01—07</span></div>
-    </footer>
-    <div class="bottom-line"><span>HANDCRAFTED WITH GO &amp; A LITTLE JAVASCRIPT</span><span>INSERT COIN? NAH. JUST PLAY.</span></div>
-  </main>
-</body>
+    </main>
+    <div class="attribution">
+      <span class="separator" aria-hidden="true"> • </span>
+      Coded by
+      <a
+        href="https://github.com/yehudahason"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        @Yehuda Hason
+      </a>
+    </div>
+  </body>
 </html>

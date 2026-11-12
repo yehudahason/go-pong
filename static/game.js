@@ -1,6 +1,10 @@
 "use strict";
-
 (() => {
+  const modeBtn = document.querySelector(".modeBtn");
+
+  modeBtn.addEventListener("click", () => {
+    document.body.classList.toggle("light");
+  });
   const WIDTH = 960;
   const HEIGHT = 540;
   const PADDLE_WIDTH = 14;
@@ -8,7 +12,8 @@
   const PADDLE_OFFSET = 49;
   const BALL_RADIUS = 9;
   const PLAYER_SPEED = 550;
-  const WIN_SCORE = Number(document.querySelector(".app-shell").dataset.winScore) || 7;
+  const WIN_SCORE =
+    Number(document.querySelector(".app-shell").dataset.winScore) || 7;
   const CPU_SPEED = { easy: 255, normal: 375, hard: 485 };
 
   const canvas = document.getElementById("pong");
@@ -26,8 +31,16 @@
   const statusLabel = el("statusLabel");
   const statusDot = el("statusDot");
 
-  const left = { x: PADDLE_OFFSET, y: (HEIGHT - PADDLE_HEIGHT) / 2, previousY: 0 };
-  const right = { x: WIDTH - PADDLE_OFFSET - PADDLE_WIDTH, y: (HEIGHT - PADDLE_HEIGHT) / 2, previousY: 0 };
+  const left = {
+    x: PADDLE_OFFSET,
+    y: (HEIGHT - PADDLE_HEIGHT) / 2,
+    previousY: 0,
+  };
+  const right = {
+    x: WIDTH - PADDLE_OFFSET - PADDLE_WIDTH,
+    y: (HEIGHT - PADDLE_HEIGHT) / 2,
+    previousY: 0,
+  };
   const ball = { x: WIDTH / 2, y: HEIGHT / 2, vx: 0, vy: 0, trail: [] };
   const keys = new Set();
   const state = {
@@ -86,7 +99,8 @@
     el("player2Controls").hidden = cpuMode;
 
     pauseButton.disabled = state.phase === "idle" || state.phase === "finished";
-    el("pauseLabel").textContent = state.phase === "paused" ? "RESUME" : "PAUSE";
+    el("pauseLabel").textContent =
+      state.phase === "paused" ? "RESUME" : "PAUSE";
     statusDot.classList.toggle("playing", state.phase === "playing");
     statusDot.classList.toggle("stopped", state.phase === "finished");
     statusLabel.textContent = {
@@ -117,7 +131,13 @@
     left.y = right.y = (HEIGHT - PADDLE_HEIGHT) / 2;
     resetBall();
     state.serveCountdown = 0;
-    setOverlay("THE COURT IS YOURS", "GAME ON.", "Test your reflexes. Own the rally.", "START GAME", "PRESS SPACE TO START");
+    setOverlay(
+      "THE COURT IS YOURS",
+      "GAME ON.",
+      "Test your reflexes. Own the rally.",
+      "START GAME",
+      "PRESS SPACE TO START",
+    );
     syncHUD();
     draw();
   }
@@ -141,7 +161,7 @@
 
   function launchBall() {
     const direction = state.serveDirection;
-    const angle = (Math.random() * 0.64 - 0.32);
+    const angle = Math.random() * 0.64 - 0.32;
     const speed = 355;
     ball.vx = direction * speed * Math.cos(angle);
     ball.vy = speed * Math.sin(angle);
@@ -171,7 +191,13 @@
   function togglePause() {
     if (state.phase === "playing") {
       state.phase = "paused";
-      setOverlay("TAKE YOUR TIME", "PAUSED.", "The next point is waiting for you.", "RESUME GAME", "PRESS SPACE TO RESUME");
+      setOverlay(
+        "TAKE YOUR TIME",
+        "PAUSED.",
+        "The next point is waiting for you.",
+        "RESUME GAME",
+        "PRESS SPACE TO RESUME",
+      );
     } else if (state.phase === "paused") {
       state.phase = "playing";
       overlay.hidden = true;
@@ -186,14 +212,17 @@
     try {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       if (!AudioContext) return;
-      const audio = state.audioContext ||= new AudioContext();
+      const audio = (state.audioContext ||= new AudioContext());
       if (audio.state === "suspended") void audio.resume();
       const oscillator = audio.createOscillator();
       const gain = audio.createGain();
       oscillator.type = wave;
       oscillator.frequency.setValueAtTime(frequency, audio.currentTime);
       gain.gain.setValueAtTime(0.045, audio.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audio.currentTime + duration);
+      gain.gain.exponentialRampToValueAtTime(
+        0.001,
+        audio.currentTime + duration,
+      );
       oscillator.connect(gain).connect(audio.destination);
       oscillator.start();
       oscillator.stop(audio.currentTime + duration);
@@ -216,13 +245,17 @@
       state.bestRally = state.rally;
       storeBest();
     }
-    state.aiOffset = (Math.random() - 0.5) * (difficultySelect.value === "hard" ? 24 : 74);
+    state.aiOffset =
+      (Math.random() - 0.5) * (difficultySelect.value === "hard" ? 24 : 74);
     sound(360 + Math.min(450, speed / 2), 0.055, "triangle");
     syncHUD();
   }
 
   function hitPaddle(paddle) {
-    return ball.y + BALL_RADIUS >= paddle.y && ball.y - BALL_RADIUS <= paddle.y + PADDLE_HEIGHT;
+    return (
+      ball.y + BALL_RADIUS >= paddle.y &&
+      ball.y - BALL_RADIUS <= paddle.y + PADDLE_HEIGHT
+    );
   }
 
   function scorePoint(player) {
@@ -232,9 +265,22 @@
       state.phase = "finished";
       state.winner = player;
       const local = modeSelect.value === "local";
-      const label = local ? `PLAYER ${player + 1}` : (player === 0 ? "YOU" : "CPU");
-      const message = !local && player === 0 ? "Legendary reflexes. You own the court." : "Another match? The court is ready.";
-      setOverlay("MATCH COMPLETE", `${label} WIN${label === "YOU" ? "" : "S"}!`, message, "PLAY AGAIN", "PRESS SPACE TO RESTART");
+      const label = local
+        ? `PLAYER ${player + 1}`
+        : player === 0
+          ? "YOU"
+          : "CPU";
+      const message =
+        !local && player === 0
+          ? "Legendary reflexes. You own the court."
+          : "Another match? The court is ready.";
+      setOverlay(
+        "MATCH COMPLETE",
+        `${label} WIN${label === "YOU" ? "" : "S"}!`,
+        message,
+        "PLAY AGAIN",
+        "PRESS SPACE TO RESTART",
+      );
       resetBall();
       state.serveCountdown = 0;
     } else {
@@ -264,9 +310,14 @@
       if (keys.has("arrowdown")) left.y += PLAYER_SPEED * dt;
       if (state.pointerY !== null) {
         const target = state.pointerY - PADDLE_HEIGHT / 2;
-        left.y += clamp(target - left.y, -PLAYER_SPEED * dt * 1.5, PLAYER_SPEED * dt * 1.5);
+        left.y += clamp(
+          target - left.y,
+          -PLAYER_SPEED * dt * 1.5,
+          PLAYER_SPEED * dt * 1.5,
+        );
       }
-      const target = predictYAtRightPaddle() - PADDLE_HEIGHT / 2 + state.aiOffset;
+      const target =
+        predictYAtRightPaddle() - PADDLE_HEIGHT / 2 + state.aiOffset;
       const speed = CPU_SPEED[difficultySelect.value] || CPU_SPEED.normal;
       const delta = target - right.y;
       if (Math.abs(delta) > 7) right.y += clamp(delta, -speed * dt, speed * dt);
@@ -275,7 +326,11 @@
       if (keys.has("arrowdown")) right.y += PLAYER_SPEED * dt;
       if (state.pointerY !== null) {
         const target = state.pointerY - PADDLE_HEIGHT / 2;
-        left.y += clamp(target - left.y, -PLAYER_SPEED * dt * 1.5, PLAYER_SPEED * dt * 1.5);
+        left.y += clamp(
+          target - left.y,
+          -PLAYER_SPEED * dt * 1.5,
+          PLAYER_SPEED * dt * 1.5,
+        );
       }
     }
     left.y = clamp(left.y, 8, HEIGHT - PADDLE_HEIGHT - 8);
@@ -306,12 +361,20 @@
       sound(240, 0.04);
     }
 
-    if (ball.vx < 0 && ball.x - BALL_RADIUS <= left.x + PADDLE_WIDTH &&
-        ball.x + BALL_RADIUS >= left.x && hitPaddle(left)) {
+    if (
+      ball.vx < 0 &&
+      ball.x - BALL_RADIUS <= left.x + PADDLE_WIDTH &&
+      ball.x + BALL_RADIUS >= left.x &&
+      hitPaddle(left)
+    ) {
       ball.x = left.x + PADDLE_WIDTH + BALL_RADIUS;
       reflectFromPaddle(left, 1);
-    } else if (ball.vx > 0 && ball.x + BALL_RADIUS >= right.x &&
-        ball.x - BALL_RADIUS <= right.x + PADDLE_WIDTH && hitPaddle(right)) {
+    } else if (
+      ball.vx > 0 &&
+      ball.x + BALL_RADIUS >= right.x &&
+      ball.x - BALL_RADIUS <= right.x + PADDLE_WIDTH &&
+      hitPaddle(right)
+    ) {
       ball.x = right.x - BALL_RADIUS;
       reflectFromPaddle(right, -1);
     }
@@ -350,10 +413,16 @@
     ctx.strokeStyle = "#7795c013";
     ctx.lineWidth = 1;
     for (let x = 0; x <= WIDTH; x += 48) {
-      ctx.beginPath(); ctx.moveTo(x + 0.5, 0); ctx.lineTo(x + 0.5, HEIGHT); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x + 0.5, 0);
+      ctx.lineTo(x + 0.5, HEIGHT);
+      ctx.stroke();
     }
     for (let y = 0; y <= HEIGHT; y += 48) {
-      ctx.beginPath(); ctx.moveTo(0, y + 0.5); ctx.lineTo(WIDTH, y + 0.5); ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(0, y + 0.5);
+      ctx.lineTo(WIDTH, y + 0.5);
+      ctx.stroke();
     }
 
     ctx.strokeStyle = "#88a5c72a";
@@ -362,19 +431,42 @@
     ctx.setLineDash([8, 12]);
     ctx.strokeStyle = "#8a9dbd4d";
     ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.moveTo(WIDTH / 2, 12); ctx.lineTo(WIDTH / 2, HEIGHT - 12); ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(WIDTH / 2, 12);
+    ctx.lineTo(WIDTH / 2, HEIGHT - 12);
+    ctx.stroke();
     ctx.setLineDash([]);
     ctx.strokeStyle = "#8a9dbd20";
     ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.arc(WIDTH / 2, HEIGHT / 2, 66, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(WIDTH / 2, HEIGHT / 2, 66, 0, Math.PI * 2);
+    ctx.stroke();
 
     // Pale blue/pink ambient spotlights near each side of the court.
-    const leftGlow = ctx.createRadialGradient(0, HEIGHT / 2, 0, 0, HEIGHT / 2, 340);
-    leftGlow.addColorStop(0, "#5fe8e010"); leftGlow.addColorStop(1, "#5fe8e000");
-    ctx.fillStyle = leftGlow; ctx.fillRect(0, 0, 340, HEIGHT);
-    const rightGlow = ctx.createRadialGradient(WIDTH, HEIGHT / 2, 0, WIDTH, HEIGHT / 2, 340);
-    rightGlow.addColorStop(0, "#f783ae0c"); rightGlow.addColorStop(1, "#f783ae00");
-    ctx.fillStyle = rightGlow; ctx.fillRect(WIDTH - 340, 0, 340, HEIGHT);
+    const leftGlow = ctx.createRadialGradient(
+      0,
+      HEIGHT / 2,
+      0,
+      0,
+      HEIGHT / 2,
+      340,
+    );
+    leftGlow.addColorStop(0, "#5fe8e010");
+    leftGlow.addColorStop(1, "#5fe8e000");
+    ctx.fillStyle = leftGlow;
+    ctx.fillRect(0, 0, 340, HEIGHT);
+    const rightGlow = ctx.createRadialGradient(
+      WIDTH,
+      HEIGHT / 2,
+      0,
+      WIDTH,
+      HEIGHT / 2,
+      340,
+    );
+    rightGlow.addColorStop(0, "#f783ae0c");
+    rightGlow.addColorStop(1, "#f783ae00");
+    ctx.fillStyle = rightGlow;
+    ctx.fillRect(WIDTH - 340, 0, 340, HEIGHT);
 
     paintPaddle(left, "#5fe8e0");
     paintPaddle(right, "#f783ae");
@@ -412,7 +504,9 @@
 
   let previousTime = 0;
   function frame(timestamp) {
-    const dt = previousTime ? Math.min((timestamp - previousTime) / 1000, 0.028) : 0;
+    const dt = previousTime
+      ? Math.min((timestamp - previousTime) / 1000, 0.028)
+      : 0;
     previousTime = timestamp;
     update(dt);
     draw();
@@ -420,15 +514,24 @@
   }
 
   function isEditingInput(target) {
-    return target instanceof HTMLElement && !!target.closest("select, input, textarea, [contenteditable]");
+    return (
+      target instanceof HTMLElement &&
+      !!target.closest("select, input, textarea, [contenteditable]")
+    );
   }
 
   document.addEventListener("keydown", (event) => {
     if (isEditingInput(event.target)) return;
     const key = event.key.toLowerCase();
     // Preserve Space as native keyboard activation for focused buttons and links.
-    if (key === " " && event.target instanceof HTMLElement && event.target.closest("button, a")) return;
-    if (["w", "s", "arrowup", "arrowdown", " "].includes(key)) event.preventDefault();
+    if (
+      key === " " &&
+      event.target instanceof HTMLElement &&
+      event.target.closest("button, a")
+    )
+      return;
+    if (["w", "s", "arrowup", "arrowdown", " "].includes(key))
+      event.preventDefault();
     if (key === " " && !event.repeat) {
       togglePause();
       return;
@@ -436,7 +539,9 @@
     keys.add(key);
   });
 
-  document.addEventListener("keyup", (event) => keys.delete(event.key.toLowerCase()));
+  document.addEventListener("keyup", (event) =>
+    keys.delete(event.key.toLowerCase()),
+  );
   window.addEventListener("blur", () => {
     keys.clear();
     state.pointerActive = false;
@@ -446,7 +551,11 @@
 
   function setPointerY(event) {
     const rect = canvas.getBoundingClientRect();
-    state.pointerY = clamp((event.clientY - rect.top) / rect.height * HEIGHT, 0, HEIGHT);
+    state.pointerY = clamp(
+      ((event.clientY - rect.top) / rect.height) * HEIGHT,
+      0,
+      HEIGHT,
+    );
   }
   canvas.addEventListener("pointerdown", (event) => {
     if (state.phase !== "playing") return;
@@ -456,7 +565,8 @@
   });
   canvas.addEventListener("pointermove", (event) => {
     if (state.phase !== "playing") return;
-    if (event.pointerType === "mouse" || state.pointerActive) setPointerY(event);
+    if (event.pointerType === "mouse" || state.pointerActive)
+      setPointerY(event);
   });
   const stopPointer = () => {
     state.pointerActive = false;
@@ -465,7 +575,8 @@
   canvas.addEventListener("pointerup", stopPointer);
   canvas.addEventListener("pointercancel", stopPointer);
   canvas.addEventListener("pointerleave", (event) => {
-    if (event.pointerType === "mouse" && !state.pointerActive) state.pointerY = null;
+    if (event.pointerType === "mouse" && !state.pointerActive)
+      state.pointerY = null;
   });
 
   startButton.addEventListener("click", startMatch);
@@ -479,12 +590,16 @@
   soundButton.addEventListener("click", () => {
     state.audioEnabled = !state.audioEnabled;
     soundButton.setAttribute("aria-pressed", String(state.audioEnabled));
-    soundButton.setAttribute("aria-label", state.audioEnabled ? "Disable sound" : "Enable sound");
+    soundButton.setAttribute(
+      "aria-label",
+      state.audioEnabled ? "Disable sound" : "Enable sound",
+    );
     el("soundLabel").textContent = state.audioEnabled ? "ON" : "OFF";
     if (state.audioEnabled) sound(530, 0.07);
   });
 
-  if (typeof ResizeObserver !== "undefined") new ResizeObserver(resizeCanvas).observe(canvas);
+  if (typeof ResizeObserver !== "undefined")
+    new ResizeObserver(resizeCanvas).observe(canvas);
   else window.addEventListener("resize", resizeCanvas);
   resetMatch();
   resizeCanvas();

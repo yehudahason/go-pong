@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"embed"
 	"flag"
+	"fmt"
 	"html/template"
 	"io/fs"
 	"log/slog"
@@ -83,6 +84,7 @@ func main() {
 	}
 
 	slog.Info("pong server started", "addr", *addr)
+	fmt.Printf("http://localhost%v", *addr)
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		slog.Error("server failed", "error", err)
 		os.Exit(1)

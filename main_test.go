@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -14,13 +15,26 @@ func TestHomeRendersTemplate(t *testing.T) {
 	}
 	rr := httptest.NewRecorder()
 	h.ServeHTTP(rr, httptest.NewRequest(http.MethodGet, "/", nil))
+	t.Log(rr.Body.String())
 	if rr.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", rr.Code)
 	}
-	for _, snippet := range []string{"GO PONG", "data-win-score=\"7\"", "<option value=\"normal\" selected"} {
+
+	for _, snippet := range []string{
+		"GO PONG",
+		`data-win-score="7"`,
+	} {
 		if !strings.Contains(rr.Body.String(), snippet) {
 			t.Errorf("rendered HTML does not contain %q", snippet)
 		}
+	}
+
+	normalOption := regexp.MustCompile(
+		`(?s)<option\s+value="normal"\s+selected\s*>`,
+	)
+
+	if !normalOption.MatchString(rr.Body.String()) {
+		t.Error("normal difficulty is not selected by default")
 	}
 }
 

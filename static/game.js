@@ -14,7 +14,11 @@
   const PLAYER_SPEED = 550;
   const WIN_SCORE =
     Number(document.querySelector(".app-shell").dataset.winScore) || 7;
-  const CPU_SPEED = { easy: 255, normal: 375, hard: 485 };
+  const CPU_SETTINGS = {
+    easy: { speed: 260, accuracy: 75 },
+    normal: { speed: 365, accuracy: 50 },
+    hard: { speed: 900, accuracy: 0 },
+  };
 
   const canvas = document.getElementById("pong");
   const ctx = canvas.getContext("2d");
@@ -60,6 +64,12 @@
 
   function clamp(value, low, high) {
     return Math.max(low, Math.min(high, value));
+  }
+
+  function randomAIOffset() {
+    const settings =
+      CPU_SETTINGS[difficultySelect.value] || CPU_SETTINGS.normal;
+    return (Math.random() * 2 - 1) * settings.accuracy;
   }
 
   function loadBest() {
@@ -154,7 +164,7 @@
     resetBall();
     state.serveCountdown = 0.7;
     state.rally = 0;
-    state.aiOffset = (Math.random() - 0.5) * 74;
+    state.aiOffset = randomAIOffset();
     state.serveDirection = direction;
     syncHUD();
   }
@@ -245,8 +255,7 @@
       state.bestRally = state.rally;
       storeBest();
     }
-    state.aiOffset =
-      (Math.random() - 0.5) * (difficultySelect.value === "hard" ? 24 : 74);
+    state.aiOffset = randomAIOffset();
     sound(360 + Math.min(450, speed / 2), 0.055, "triangle");
     syncHUD();
   }
@@ -292,8 +301,8 @@
   function predictYAtRightPaddle() {
     if (ball.vx <= 0) return HEIGHT / 2;
     const remaining = Math.max(0, (right.x - ball.x) / ball.vx);
-    const top = BALL_RADIUS + 6;
-    const bottom = HEIGHT - BALL_RADIUS - 6;
+    const top = BALL_RADIUS + 5;
+    const bottom = HEIGHT - BALL_RADIUS - 5;
     const range = bottom - top;
     let projected = (ball.y - top + ball.vy * remaining) % (2 * range);
     if (projected < 0) projected += 2 * range;
@@ -318,9 +327,15 @@
       }
       const target =
         predictYAtRightPaddle() - PADDLE_HEIGHT / 2 + state.aiOffset;
-      const speed = CPU_SPEED[difficultySelect.value] || CPU_SPEED.normal;
+      const settings =
+        CPU_SETTINGS[difficultySelect.value] || CPU_SETTINGS.normal;
       const delta = target - right.y;
-      if (Math.abs(delta) > 7) right.y += clamp(delta, -speed * dt, speed * dt);
+      // Keep Hard mode perfectly accurate, but animate its paddle movement
+      // instead of teleporting it to the predicted landing point.
+      const deadZone = difficultySelect.value === "hard" ? 0 : 7;
+      if (Math.abs(delta) > deadZone) {
+        right.y += clamp(delta, -settings.speed * dt, settings.speed * dt);
+      }
     } else {
       if (keys.has("arrowup")) right.y -= PLAYER_SPEED * dt;
       if (keys.has("arrowdown")) right.y += PLAYER_SPEED * dt;
@@ -559,14 +574,19 @@
   }
   canvas.addEventListener("pointerdown", (event) => {
     if (state.phase !== "playing") return;
+    if (event.pointerType !== "touch") return;
+
     state.pointerActive = true;
     setPointerY(event);
     canvas.setPointerCapture(event.pointerId);
   });
+
   canvas.addEventListener("pointermove", (event) => {
     if (state.phase !== "playing") return;
-    if (event.pointerType === "mouse" || state.pointerActive)
+
+    if (event.pointerType === "touch" && state.pointerActive) {
       setPointerY(event);
+    }
   });
   const stopPointer = () => {
     state.pointerActive = false;
@@ -584,7 +604,7 @@
   resetButton.addEventListener("click", resetMatch);
   modeSelect.addEventListener("change", resetMatch);
   difficultySelect.addEventListener("change", () => {
-    state.aiOffset = 0;
+    state.aiOffset = randomAIOffset();
     syncHUD();
   });
   soundButton.addEventListener("click", () => {

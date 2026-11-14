@@ -40,7 +40,10 @@ func newHandler() (http.Handler, error) {
 	}
 
 	mux := http.NewServeMux()
-	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.FS(static))))
+	mux.Handle(
+		"GET /static/",
+		http.StripPrefix("/static/", http.FileServerFS(static)),
+	)
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
 		data := pageData{
 			Title:             "GO PONG — Arcade Ping Pong",
